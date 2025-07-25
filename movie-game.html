@@ -1,0 +1,449 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, RotateCcw, Trophy, Users } from 'lucide-react';
+
+const MoviePosterGame = () => {
+  const [currentMovie, setCurrentMovie] = useState(0);
+  const [scores, setScores] = useState({});
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [playerName, setPlayerName] = useState('');
+  const [showScoreboard, setShowScoreboard] = useState(false);
+
+  // 15 movies with partial poster visual representations
+  const movies = [
+    {
+      title: "The Lion King",
+      year: 1994,
+      category: "Disney/Animation",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-orange-400 to-red-600 flex items-center justify-center">
+          <div className="absolute top-4 w-16 h-16 bg-yellow-300 rounded-full animate-pulse"></div>
+          <div className="text-6xl animate-bounce">🦁</div>
+          <div className="absolute bottom-8 w-full h-8 bg-orange-800 rounded-full opacity-60 animate-pulse"></div>
+        </div>
+      )
+    },
+    {
+      title: "Inception",
+      year: 2010,
+      category: "Sci-Fi",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-gray-900 flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-purple-900 animate-pulse"></div>
+          <div className="relative transform rotate-45 bg-gray-700 w-32 h-4 mb-8 animate-spin"></div>
+          <div className="relative text-white text-4xl animate-bounce">🏙️</div>
+          <div className="absolute bottom-4 transform -rotate-12 bg-gray-600 w-24 h-3 animate-pulse"></div>
+        </div>
+      )
+    },
+    {
+      title: "Jaws",
+      year: 1975,
+      category: "Thriller",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-blue-900">
+          <div className="absolute top-0 w-full h-1/3 bg-blue-400"></div>
+          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-4xl">🏊‍♀️</div>
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-6xl">🦈</div>
+          <div className="absolute bottom-0 w-full h-2 bg-black"></div>
+        </div>
+      )
+    },
+    {
+      title: "Titanic",
+      year: 1997,
+      category: "Romance/Drama",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-blue-300 to-blue-800">
+          <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 text-5xl">🚢</div>
+          <div className="absolute top-1/2 left-1/3 text-3xl">👫</div>
+          <div className="absolute bottom-0 w-full h-8 bg-blue-900"></div>
+          <div className="absolute top-4 right-4 text-2xl">⭐</div>
+        </div>
+      )
+    },
+    {
+      title: "The Matrix",
+      year: 1999,
+      category: "Sci-Fi",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-black">
+          <div className="absolute inset-0 bg-gradient-to-b from-green-900 to-black opacity-50"></div>
+          <div className="absolute top-4 left-4 text-green-400 text-xs font-mono">01010101</div>
+          <div className="absolute top-8 right-4 text-green-400 text-xs font-mono">11001010</div>
+          <div className="absolute center text-4xl">🕴️</div>
+          <div className="absolute bottom-4 text-green-400 text-xs font-mono">10101010</div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-white text-4xl">🕶️</div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Pulp Fiction",
+      year: 1994,
+      category: "Crime",
+      difficulty: "Hard",
+      poster: (
+        <div className="relative w-full h-full bg-yellow-400">
+          <div className="absolute inset-4 bg-black"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl">👩‍🦱</div>
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl">🚬</div>
+        </div>
+      )
+    },
+    {
+      title: "E.T.",
+      year: 1982,
+      category: "Family/Sci-Fi",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-purple-900 to-black">
+          <div className="absolute top-1/4 right-1/4 w-20 h-20 bg-white rounded-full opacity-80"></div>
+          <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2 text-4xl">🚲</div>
+          <div className="absolute bottom-1/3 right-1/3 text-3xl">👽</div>
+          <div className="absolute bottom-8 w-full h-4 bg-green-800 rounded-full"></div>
+        </div>
+      )
+    },
+    {
+      title: "The Godfather",
+      year: 1972,
+      category: "Crime/Drama",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-black">
+          <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-gray-600 rounded-full"></div>
+          <div className="absolute center text-3xl">🤵</div>
+          <div className="absolute bottom-1/4 left-1/2 transform -translate-x-1/2 text-2xl">🌹</div>
+        </div>
+      )
+    },
+    {
+      title: "Star Wars",
+      year: 1977,
+      category: "Sci-Fi",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-black">
+          <div className="absolute inset-0 bg-gradient-to-b from-yellow-600 to-black opacity-30"></div>
+          <div className="absolute top-1/4 left-1/4 text-3xl">⚔️</div>
+          <div className="absolute top-1/3 right-1/4 text-2xl">🤖</div>
+          <div className="absolute bottom-1/3 center text-4xl">🚀</div>
+          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gray-600 rounded-full"></div>
+        </div>
+      )
+    },
+    {
+      title: "Jurassic Park",
+      year: 1993,
+      category: "Adventure",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-yellow-600 to-green-800">
+          <div className="absolute center text-6xl">🦕</div>
+          <div className="absolute top-1/4 right-1/4 text-2xl">🌿</div>
+          <div className="absolute bottom-1/4 left-1/4 text-2xl">🌴</div>
+          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-yellow-300 rounded-full"></div>
+        </div>
+      )
+    },
+    {
+      title: "Spider-Man",
+      year: 2002,
+      category: "Superhero",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-red-600 to-blue-800">
+          <div className="absolute inset-0 opacity-20">
+            <div className="w-full h-1 bg-white mt-8"></div>
+            <div className="w-full h-1 bg-white mt-4"></div>
+            <div className="w-full h-1 bg-white mt-4"></div>
+          </div>
+          <div className="absolute center text-5xl">🕷️</div>
+          <div className="absolute bottom-1/4 right-1/4 text-3xl">🏢</div>
+        </div>
+      )
+    },
+    {
+      title: "Finding Nemo",
+      year: 2003,
+      category: "Animation",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-blue-300 to-blue-800">
+          <div className="absolute center text-5xl">🐠</div>
+          <div className="absolute top-1/4 right-1/3 text-3xl">🐟</div>
+          <div className="absolute bottom-1/4 left-1/4 text-2xl">🪸</div>
+          <div className="absolute bottom-8 w-full h-4 bg-yellow-600 rounded-full opacity-60"></div>
+        </div>
+      )
+    },
+    {
+      title: "The Dark Knight",
+      year: 2008,
+      category: "Superhero",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-black">
+          <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 text-4xl">🦇</div>
+          <div className="absolute center text-3xl">🃏</div>
+          <div className="absolute bottom-1/4 right-1/3 text-2xl">🏢</div>
+          <div className="absolute top-4 w-full h-2 bg-yellow-500"></div>
+        </div>
+      )
+    },
+    {
+      title: "Frozen",
+      year: 2013,
+      category: "Animation",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-blue-200 to-white">
+          <div className="absolute center text-5xl">❄️</div>
+          <div className="absolute top-1/4 left-1/3 text-3xl">👸</div>
+          <div className="absolute bottom-1/4 right-1/4 text-3xl">⛄</div>
+          <div className="absolute bottom-0 w-full h-8 bg-white"></div>
+        </div>
+      )
+    },
+    {
+      title: "Avatar",
+      year: 2009,
+      category: "Sci-Fi",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-blue-900 to-green-900">
+          <div className="absolute center text-4xl text-blue-300 animate-pulse">👤</div>
+          <div className="absolute top-1/4 right-1/4 text-2xl animate-bounce">🌙</div>
+          <div className="absolute bottom-1/4 left-1/4 text-3xl animate-pulse">🌳</div>
+          <div className="absolute bottom-1/4 right-1/3 text-2xl animate-ping">✨</div>
+        </div>
+      )
+    },
+    {
+      title: "Shrek",
+      year: 2001,
+      category: "Animation",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-green-600 to-green-800">
+          <div className="absolute center text-5xl animate-bounce">👹</div>
+          <div className="absolute top-1/4 right-1/4 text-3xl animate-pulse">👸</div>
+          <div className="absolute bottom-1/4 left-1/4 text-2xl animate-spin">🏰</div>
+          <div className="absolute bottom-8 w-full h-4 bg-brown-600 rounded-full animate-pulse"></div>
+        </div>
+      )
+    },
+    {
+      title: "Pirates of the Caribbean",
+      year: 2003,
+      category: "Adventure",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-blue-800 to-black">
+          <div className="absolute center text-4xl animate-bounce">🏴‍☠️</div>
+          <div className="absolute top-1/4 left-1/4 text-3xl animate-pulse">⚔️</div>
+          <div className="absolute bottom-1/4 right-1/4 text-3xl animate-pulse">🚢</div>
+          <div className="absolute top-8 right-8 text-2xl animate-spin">☠️</div>
+        </div>
+      )
+    },
+    {
+      title: "The Little Mermaid",
+      year: 1989,
+      category: "Disney/Animation",
+      difficulty: "Easy",
+      poster: (
+        <div className="relative w-full h-full bg-gradient-to-b from-blue-300 to-blue-800">
+          <div className="absolute center text-5xl animate-pulse">🧜‍♀️</div>
+          <div className="absolute bottom-1/4 left-1/3 text-3xl animate-bounce">🐠</div>
+          <div className="absolute bottom-8 right-1/4 text-2xl animate-pulse">🌊</div>
+          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-2xl animate-ping">✨</div>
+        </div>
+      )
+    },
+    {
+      title: "Ghostbusters",
+      year: 1984,
+      category: "Comedy",
+      difficulty: "Medium",
+      poster: (
+        <div className="relative w-full h-full bg-black">
+          <div className="absolute center text-5xl animate-bounce">👻</div>
+          <div className="absolute top-1/4 left-1/4 text-3xl animate-pulse">🚫</div>
+          <div className="absolute bottom-1/4 right-1/4 text-2xl animate-pulse">🔦</div>
+          <div className="absolute inset-0 bg-green-500 opacity-10 animate-pulse"></div>
+        </div>
+      )
+    }
+  ];
+
+  const addScore = () => {
+    if (playerName.trim()) {
+      setScores(prev => ({
+        ...prev,
+        [playerName.trim()]: (prev[playerName.trim()] || 0) + 1
+      }));
+      setPlayerName('');
+    }
+  };
+
+  const nextMovie = () => {
+    setCurrentMovie((prev) => (prev + 1) % movies.length);
+    setShowAnswer(false);
+  };
+
+  const prevMovie = () => {
+    setCurrentMovie((prev) => (prev - 1 + movies.length) % movies.length);
+    setShowAnswer(false);
+  };
+
+  const resetGame = () => {
+    setScores({});
+    setCurrentMovie(0);
+    setShowAnswer(false);
+    setShowScoreboard(false);
+  };
+
+  const movie = movies[currentMovie];
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen text-white">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+          🎬 Movie Poster Challenge
+        </h1>
+        <p className="text-lg text-blue-200">Guess the movie from the partial poster!</p>
+      </div>
+
+      <div className="bg-white/10 backdrop-blur rounded-xl p-6 mb-6 border border-white/20">
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-sm bg-blue-500/30 px-3 py-1 rounded-full">
+            Movie {currentMovie + 1} of {movies.length}
+          </span>
+          <span className={`text-sm px-3 py-1 rounded-full ${
+            movie.difficulty === 'Easy' ? 'bg-green-500/30' :
+            movie.difficulty === 'Medium' ? 'bg-yellow-500/30' : 'bg-red-500/30'
+          }`}>
+            {movie.difficulty}
+          </span>
+        </div>
+
+        <div className="text-center mb-6">
+          <div className="bg-gray-800 p-4 rounded-lg mb-4 border-2 border-gray-600 mx-auto" style={{width: '300px', height: '400px'}}>
+            {movie.poster}
+          </div>
+          <p className="text-sm text-gray-400 mt-2">Category: {movie.category}</p>
+        </div>
+
+        <div className="flex justify-center gap-4 mb-4">
+          <button 
+            onClick={prevMovie}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
+          >
+            <ChevronLeft size={20} />
+            Previous
+          </button>
+          
+          <button 
+            onClick={() => setShowAnswer(!showAnswer)}
+            className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg transition-colors"
+          >
+            {showAnswer ? 'Hide Answer' : 'Reveal Answer'}
+          </button>
+          
+          <button 
+            onClick={nextMovie}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
+          >
+            Next
+            <ChevronRight size={20} />
+          </button>
+        </div>
+
+        {showAnswer && (
+          <div className="text-center p-4 bg-green-600/20 rounded-lg border border-green-500/30">
+            <h3 className="text-2xl font-bold text-green-300">
+              {movie.title} ({movie.year})
+            </h3>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/20">
+        <div className="flex flex-wrap gap-4 items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <Trophy className="text-yellow-500" size={24} />
+            Score Tracker
+          </h3>
+          <button 
+            onClick={() => setShowScoreboard(!showScoreboard)}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors"
+          >
+            <Users size={20} />
+            {showScoreboard ? 'Hide' : 'Show'} Scoreboard
+          </button>
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            placeholder="Player name who got it right"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/30 text-white placeholder-gray-400"
+            onKeyPress={(e) => e.key === 'Enter' && addScore()}
+          />
+          <button 
+            onClick={addScore}
+            className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg transition-colors"
+          >
+            +1 Point
+          </button>
+        </div>
+
+        {showScoreboard && (
+          <div className="mb-4">
+            <h4 className="font-semibold mb-2">Current Scores:</h4>
+            {Object.keys(scores).length === 0 ? (
+              <p className="text-gray-400 italic">No scores yet!</p>
+            ) : (
+              <div className="space-y-2">
+                {Object.entries(scores)
+                  .sort(([,a], [,b]) => b - a)
+                  .map(([name, score], index) => (
+                    <div key={name} className="flex justify-between items-center bg-white/5 p-2 rounded">
+                      <span className="flex items-center gap-2">
+                        {index === 0 && <span className="text-yellow-500">👑</span>}
+                        {name}
+                      </span>
+                      <span className="font-bold">{score} points</span>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <button 
+          onClick={resetGame}
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors"
+        >
+          <RotateCcw size={20} />
+          Reset Game
+        </button>
+      </div>
+
+      <div className="mt-6 text-center text-sm text-gray-400">
+        <p>💡 Tip: Look for iconic colors, shapes, and symbols from the movie posters!</p>
+      </div>
+    </div>
+  );
+};
+
+export default MoviePosterGame;
